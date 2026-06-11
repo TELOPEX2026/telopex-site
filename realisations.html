@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Réalisations — Telopex</title>
+  <meta name="description" content="Découvrez les projets et réalisations de Telopex."/>
+  <link rel="icon" href="telopex-logo.svg" />
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .real-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .real-card:hover {
+      border-color: var(--purple);
+      transform: translateY(-4px);
+      box-shadow: var(--glow);
+    }
+    .real-card h3 { font-size: 1.2rem; margin-bottom: .6rem; }
+    .real-card p  { font-size: .9rem; color: var(--muted); line-height: 1.6; margin-bottom: 1.2rem; }
+    .tags {
+      display: flex; flex-wrap: wrap; gap: .6rem;
+    }
+    .tag {
+      background: rgba(124,58,237,0.1);
+      border: 1px solid var(--border);
+      padding: .35rem .9rem; border-radius: 100px;
+      font-size: .8rem; color: var(--purple-l); font-weight: 500;
+    }
+    .real-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(124,58,237,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- PAGE HERO -->
+<div class="page-hero" id="page-hero"></div>
+
+<!-- RÉALISATIONS -->
+<section id="realisations-list"></section>
+
+<!-- CTA -->
+<div class="cta-band" id="cta-band"></div>
+
+<script src="content.js"></script>
+<script src="nav.js"></script>
+<script src="chatbot.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const { realisations } = TELOPEX;
+
+  const icons = ['🤖', '🌐', '⚡', '🔌', '🎓'];
+
+  // ── PAGE HERO ──
+  document.getElementById('page-hero').innerHTML = `
+    <h1>Nos <span style="color:var(--purple-l)">Réalisations</span></h1>
+    <p>Des projets concrets, livrés et opérationnels. Chaque réalisation reflète notre engagement envers la qualité.</p>
+  `;
+
+  // ── RÉALISATIONS ──
+  document.getElementById('realisations-list').innerHTML = `
+    <span class="section-eyebrow">Projets réalisés</span>
+    <h2 class="section-title">Ce qu'on a<br>construit</h2>
+    <p class="section-subtitle">Des solutions réelles, déployées et utilisées.</p>
+    <div class="cards-grid">
+      ${realisations.map((r, i) => `
+        <div class="real-card">
+          <div class="real-icon">${icons[i] || '⚡'}</div>
+          <h3>${r.titre}</h3>
+          <p>${r.description}</p>
+          <div class="tags">
+            ${r.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+  `;
+
+  // ── CTA ──
+  document.getElementById('cta-band').innerHTML = `
+    <h2>Votre projet sera<br>notre prochaine réalisation</h2>
+    <p>Discutons de ce qu'on peut construire ensemble.</p>
+    <a href="contact.html" class="btn-primary">Démarrer un projet ⚡</a>
+  `;
+});
+</script>
+</body>
+</html>
