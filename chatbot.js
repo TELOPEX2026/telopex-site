@@ -141,6 +141,9 @@
   document.body.appendChild(toggle);
   document.body.appendChild(win);
 
+  // ── Backend qui gère réellement l'appel à Gemini (clé API côté serveur) ──
+  const TX_BACKEND_URL = 'https://telopex-webhook-production.up.railway.app/chat';
+
   // State
   const messages = [
     { role: 'assistant', content: '👋 Bonjour ! Je suis l\'assistant Telopex. Comment puis-je vous aider ? ⚡' }
@@ -189,35 +192,33 @@
     renderMessages();
     addTyping();
 
+    const { contact } = TELOPEX;
+
     try {
-      const { contact } = TELOPEX;
       const systemPrompt = `Tu es l'assistant virtuel de Telopex, une agence digitale basée à Abidjan, Côte d'Ivoire.
 Tu réponds en français, de façon naturelle et professionnelle. Maximum 3 phrases.
 Services : bots IA multi-canaux (WhatsApp, Telegram, Messenger), automation, développement web, formations.
 Contact : ${contact.email} | WhatsApp : ${contact.whatsapp} | Site : ${contact.site}
 Règles : Ne pas inventer de prix. Pour les devis, orienter vers ${contact.email}.`;
 
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${window.GEMINI_KEY || ''}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [
-              { role: 'user',  parts: [{ text: systemPrompt }] },
-              { role: 'model', parts: [{ text: 'Compris ! Je suis l\'assistant Telopex.' }] },
-              ...messages.slice(-8).map(m => ({
-                role: m.role === 'assistant' ? 'model' : 'user',
-                parts: [{ text: m.content }]
-              }))
-            ],
-            generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
-          })
-        }
-      );
+      // On envoie la conversation à NOTRE backend (qui appelle Gemini avec la clé serveur)
+      const res = await fetch(TX_BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [
+            { role: 'user',  parts: [{ text: systemPrompt }] },
+            { role: 'model', parts: [{ text: 'Compris ! Je suis l\'assistant Telopex.' }] },
+            ...messages.slice(-8).map(m => ({
+              role: m.role === 'assistant' ? 'model' : 'user',
+              parts: [{ text: m.content }]
+            }))
+          ]
+        })
+      });
 
       const data  = await res.json();
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text
+      const reply = data.reply
         || `Désolé, je n'ai pas pu répondre. Contactez-nous sur ${contact.email}.`;
 
       removeTyping();
@@ -226,7 +227,7 @@ Règles : Ne pas inventer de prix. Pour les devis, orienter vers ${contact.email
 
     } catch {
       removeTyping();
-      messages.push({ role: 'assistant', content: `Une erreur est survenue. Contactez-nous sur ${TELOPEX.contact.email}.` });
+      messages.push({ role: 'assistant', content: `Une erreur est survenue. Contactez-nous sur ${contact.email}.` });
       renderMessages();
     } finally {
       sendBtn.disabled = false;
@@ -241,4 +242,3 @@ Règles : Ne pas inventer de prix. Pour les devis, orienter vers ${contact.email
 
   renderMessages();
 })();
-
