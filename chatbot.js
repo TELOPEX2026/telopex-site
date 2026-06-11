@@ -142,7 +142,7 @@
   document.body.appendChild(win);
 
   // ── Backend qui gère réellement l'appel à Gemini (clé API côté serveur) ──
-  const TX_BACKEND_URL = 'https://telopex-webhook-production.up.railway.app/chat';
+  const TX_BACKEND_URL = 'https://web-production-06600.up.railway.app/chat';
 
   // State
   const messages = [
